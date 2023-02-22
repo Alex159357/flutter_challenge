@@ -1,11 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_challenge/ui/screens/main_screen/main_screen.dart';
-
+import 'package:flutter_native_splash/flutter_native_splash.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:sembast/sembast.dart';
+import 'package:sembast/sembast_io.dart';
+import 'bloc/history/history_bloc.dart';
 import 'bloc/main_navigation/main_navigation_cubit.dart';
-import 'bloc/task_bloc/task_bloc_bloc.dart';
+import 'bloc/task_bloc/task_bloc.dart';
+late Database database;
 
-void main() {
+void main() async{
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  database = await _getMainDb();
   runApp(const MyApp());
 }
 
@@ -19,65 +28,31 @@ class MyApp extends StatelessWidget {
         BlocProvider<MainNavigationCubit>(
           create: (BuildContext context) => MainNavigationCubit(),
         ),
-        BlocProvider<TaskBlocBloc>(
-          create: (BuildContext context) => TaskBlocBloc(),
-        )
+        BlocProvider<TaskBloc>(
+          create: (BuildContext context) => TaskBloc(),
+        ),
+        BlocProvider<HistoryBloc>(
+          create: (BuildContext context) => HistoryBloc(),
+        ),
       ],
       child: MaterialApp(
         title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
+          useMaterial3: true,
+            bottomAppBarTheme: const BottomAppBarTheme(color: Colors.transparent)
         ),
-        home: MainScreen(),
+        home: const MainScreen(),
       ),
     );
   }
 }
-//
-// class HomePage extends StatelessWidget {
-//   final List<int> _items = List<int>.generate(50, (int index) => index);
-//
-//   HomePage({Key? key}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//         body: ConstrainedBox(
-//       constraints: const BoxConstraints(
-//         maxHeight: 250,
-//       ),
-//       child: ReorderableListView(
-//         padding: EdgeInsets.only(bottom: 100),
-//         scrollDirection: Axis.horizontal,
-//         onReorder: _update,
-//         children: [
-//           for (int i = 0; i < 50; i++)
-//             Container(
-//               key: ValueKey(i),
-//               height: 100,
-//               width: 100,
-//               margin: EdgeInsets.all(2),
-//               decoration: BoxDecoration(
-//                   color: Colors.blueGrey,
-//                   border: Border.all(
-//                     color: Colors.black,
-//                     width: 2,
-//                   ),
-//                   borderRadius: BorderRadius.circular(4),
-//                   boxShadow: [
-//                     BoxShadow(
-//                       color: Colors.black,
-//                       blurRadius: 4,
-//                     ),
-//                   ]),
-//               child: Center(
-//                 child: Text('Item $i'),
-//               ),
-//             ),
-//         ],
-//       ),
-//     ));
-//   }
-//
-//
-// }
+
+Future<Database> _getMainDb() async {
+  var dir = await getApplicationDocumentsDirectory();
+  await dir.create(recursive: true);
+  var dbPath = join(dir.path, 'test_app.db');
+  FlutterNativeSplash.remove();
+  return await databaseFactoryIo.openDatabase(dbPath, version: 1);
+}

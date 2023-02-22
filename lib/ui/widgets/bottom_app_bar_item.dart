@@ -2,6 +2,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../helpers/constains/values.dart';
+
 class BottomAppBarItem{
 
   Widget getItem(
@@ -12,11 +14,15 @@ class BottomAppBarItem{
     return InkWell(
       borderRadius: BorderRadius.circular(100),
       onTap: onPress,
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [icon, Text(caption)],
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: animationDuration),
+        opacity: isActive? 1: .5,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [icon, Text(caption)],
+          ),
         ),
       ),
     );

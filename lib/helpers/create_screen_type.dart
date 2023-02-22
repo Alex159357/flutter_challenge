@@ -1,0 +1,3 @@
+enum CreateScreenType{
+  COLUMN, TASK
+}

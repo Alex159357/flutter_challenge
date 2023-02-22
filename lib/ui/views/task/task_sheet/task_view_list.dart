@@ -3,33 +3,28 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_challenge/ui/widgets/lists/tasks_wrapper_list.dart';
+import '../../../../bloc/task_bloc/TaskListState.dart';
+import '../../../../bloc/task_bloc/task_bloc.dart';
+import '../../../../bloc/task_bloc/task_bloc_event.dart';
+import '../../../../bloc/task_bloc/task_bloc_state.dart';
+import '../../../widgets/state_less_wrapper.dart';
 
-import '../../bloc/task_bloc/TaskListState.dart';
-import '../../bloc/task_bloc/task_bloc_bloc.dart';
-import '../../bloc/task_bloc/task_bloc_state.dart';
-
-class TaskView extends StatelessWidget {
-  late TaskBlocBloc bloc;
+class TaskView extends StateLessWrapper {
+  late TaskBloc bloc;
   TaskView({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    bloc = context.read<TaskBloc>();
+    bloc.add(InitTaskEvent());
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.add))
-        ],
-      ),
-      body: Column(
-        children: [
-          _getTaskSheet
-        ],
-      ),
+      body: SafeArea(child: _getTaskSheet),
+
     );
   }
 
 
-  Widget get _getTaskSheet => BlocBuilder<TaskBlocBloc, TaskBlocState>(builder: (BuildContext context, state) {
+  Widget get _getTaskSheet => BlocBuilder<TaskBloc, TaskBlocState>(builder: (BuildContext context, state) {
     if(state.taskListState is LoadingTaskListState){
       return const Center(child:  CircularProgressIndicator(),);
     }else if(state.taskListState is LoadErrorTaskListState){
